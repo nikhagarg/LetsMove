@@ -9,10 +9,7 @@ var CODE = "GREEN";
 var RESET_TIME = 0;
 var NOTIFICATION_CLEAR_TIME_IN_MS = 10000;
 var NOTIF_SNOOZE_TIME_IN_MIN = 10; 
-var SNOOZE = {
-    type: false,
-    time: 0
-}
+var SNOOZE_TIME = -1;
 var BLOCKED_SITES = [];
 
 onInit();
@@ -119,12 +116,9 @@ function updateTimer() {
         }
 
         // IF NOTIFICATIONS WERE SNOOZED BY THE USER
-        if(SNOOZE.type === true) {
-            if(timerVal.timer == SNOOZE.time) {
-                SNOOZE.type = false;
-                SNOOZE.timer = 0;
+        if(SNOOZE_TIME === timerVal.timer) {
+                SNOOZE_TIME = -1;
                 notifyMe();
-            }
         }
 
         var newtime = 1;
@@ -218,8 +212,7 @@ function notifyMe() {
 function notificationsSnoozed() {
     var snooze = NOTIF_SNOOZE_TIME_IN_MIN*60;
     chrome.storage.local.get('timer', function(timerVal) {
-        SNOOZE.type = true;
-        SNOOZE.time = timerVal.timer + snooze;
+        SNOOZE_TIME = timerVal.timer + snooze;
     });
 
 }
