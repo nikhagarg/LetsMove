@@ -8,6 +8,11 @@ var TIME_LIMIT_IN_SEC_RED = 2*TIME_INTERVAL_IN_MIN*60;
 var CODE = "GREEN";
 var RESET_TIME = 0;
 var NOTIFICATION_CLEAR_TIME_IN_MS = 10000;
+var NOTIF_SNOOZE_TIME_IN_MIN = 10; 
+var SNOOZE = {
+    type: false,
+    time: 0
+}
 var BLOCKED_SITES = [];
 
 onInit();
@@ -112,6 +117,16 @@ function updateTimer() {
             // window.open("popup.html", "extension_popup", "width=300,height=400,status=no,scrollbars=yes,resizable=no");
             // chrome.tabs.create({url: "popup.html"});
         }
+
+        // IF NOTIFICATIONS WERE SNOOZED BY THE USER
+        if(SNOOZE.type === true) {
+            if(timerVal.timer == SNOOZE.time) {
+                SNOOZE.type = false;
+                SNOOZE.timer = 0;
+                notifyMe();
+            }
+        }
+
         var newtime = 1;
         if(timerVal.timer) {
             newtime += parseInt(timerVal.timer);
@@ -189,7 +204,10 @@ function notifyMe() {
         message : " How about taking a break from work for a nice stretch?",
         iconUrl : 'img/Active.png',
         type : 'basic',
-        requireInteraction : true
+        requireInteraction : true,
+        buttons : [{
+            title: 'snooze'
+        }]
     }, function(notificationId) {
         setTimeout(function() {
             chrome.notifications.clear(notificationId, function(){});
@@ -197,11 +215,26 @@ function notifyMe() {
     });
 }
 
+function notificationsSnoozed() {
+    var snooze = NOTIF_SNOOZE_TIME_IN_MIN*60;
+    chrome.storage.local.get('timer', function(timerVal) {
+        SNOOZE.type = true;
+        SNOOZE.time = timerVal.timer + snooze;
+    });
+
+}
 
 chrome.notifications.onClicked.addListener(function(notificationId, byUser) {
     window.open("popup.html", "extension_popup", "width=300,height=400,status=no,scrollbars=yes,resizable=yes");
     chrome.notifications.clear(notificationId, function(){});
 });
+
+chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
+    if(buttonIndex === 0) {
+        notificationsSnoozed();
+    }
+    chrome.notifications.clear(notificationId, function(){});
+})
 
 chrome.contextMenus.create({
     id: "resetTimer",
