@@ -64,7 +64,7 @@ function runBG() {
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if(request.msg == "activityCompleted") {
         resetTimer();
-    } else if(request.msg == "blockedSitesUpdated") {
+    } else if(request.msg == "blockedSiteAdded") {
         let newSite = request.value;
         if(newSite) {
             let new_hostname = extractHostname(newSite);
@@ -72,6 +72,18 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 // AVOIDING DUPLICACY: if site already exists in blocked list, do not add it again.
                 BLOCKED_SITES.push(extractHostname(newSite));
                 chrome.storage.local.set({'blockedSites' : BLOCKED_SITES});
+            }
+        }
+    } else if(request.msg == "blockedSiteDeleted") {
+        let siteToDelete = request.value;
+        if(siteToDelete) {
+            let hostname = extractHostname(siteToDelete);
+            if(isBlackListed(hostname)) {
+                var index = BLOCKED_SITES.indexOf(extractHostname(hostname));
+                if(index != -1) {
+                    BLOCKED_SITES.splice(index,1);
+                    chrome.storage.local.set({'blockedSites' : BLOCKED_SITES});
+                }
             }
         }
     } else if(request.msg == "resetBlockedList") {
@@ -214,7 +226,6 @@ function notificationsSnoozed() {
     chrome.storage.local.get('timer', function(timerVal) {
         SNOOZE_TIME = timerVal.timer + snooze;
     });
-
 }
 
 chrome.notifications.onClicked.addListener(function(notificationId, byUser) {

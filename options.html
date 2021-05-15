@@ -2,45 +2,52 @@
 <html>
     <head>
         <title>Let's Move Options</title>
-        <link rel="stylesheet" type="text/css" href="style.css">
     </head>
 
     <body>
 
-      <div class="Text">
-        <h3 id="header"> You can customize the timer</h3>
-        <label>Choose a time interval :</label>
-
-        <select id="mySelect">
-          <option value="45">45mins</option>
-          <option value="60">60mins</option>
-          <option value="75">1h 15mins</option>
-          <option value="90">1h 30mins</option>
-        </select>
-
-      </div>
-
-      <div class="Text">
-          <h3 id="header"> You can add websites where you don't want to receive notifications</h3>
-          
-          <form id="blockSitesForm">
-            <p>Add more websites</p>
-            <input type="text" id="box">
-            <input type="submit" value="Submit">
-          </form>
-        
-          <h3 id="blockedSites"> </h3>
-          <ul id='list'></ul>
-          <button id="resetBlockedList">Reset</button>
-
-      </div>
-
-      
-
     <div class="Text">
-        <h3 id="header"> Know a friend who is chair-zombie workaholic? Share the extension to make there life better</h3>
+      <h3 class="Title"> Timer Duration</h3> 
+      <hr>
+      <label>Choose a time interval :</label>
+
+      <select id="mySelect">
+        <option value="45">45mins</option>
+        <option value="60">60mins</option>
+        <option value="75">1h 15mins</option>
+        <option value="90">1h 30mins</option>
+      </select>
+
     </div>
-    <div>
+
+    <div class="blockedSites">
+        <h3 class="Title" id="header"> Add websites where you don't want to receive notifications</h3>
+        <hr>
+        <br>
+        <form id="blockSitesForm">
+          <input type="text" id="box" placeholder="Don't disturb me on">
+          <input type="submit" value="Add" id="submit">
+        </form>
+              
+
+    </div>
+
+<div class = "blockedList">
+  <p >Your blocked websites </p>
+  <p class="blockedBox"> </p>
+</div>
+
+
+
+
+<!-- Sharing Features -->
+
+<div class="Text">
+  <h3 id="header"> Know a friend who is a chair-zombie workaholic? Share this extension to make their life better</h3>
+  <hr>
+</div>
+
+     <div>
 <!-- Sharingbutton Facebook -->
 <a class="resp-sharing-button__link" href="https://facebook.com/sharer/sharer.php?u=http%3A%2F%2Fsharingbuttons.io" target="_blank" rel="noopener" aria-label="">
     <div class="resp-sharing-button resp-sharing-button--facebook resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
@@ -50,7 +57,7 @@
   </a>
   
   <!-- Sharingbutton Twitter -->
-  <a class="resp-sharing-button__link" href="https://twitter.com/intent/tweet/?text=Super%20fast%20and%20easy%20Social%20Media%20Sharing%20Buttons.%20No%20JavaScript.%20No%20tracking.&amp;url=http%3A%2F%2Fsharingbuttons.io" target="_blank" rel="noopener" aria-label="">
+  <a class="resp-sharing-button__link" href="https://twitter.com/intent/tweet/?text=Take%20healthy%20breaks%20while%20working&amp;url=https://chrome.google.com/webstore/detail/lets-move/lonkaecnmeegphliaamikdjdjngjilnd" target="_blank" rel="noopener" aria-label="">
     <div class="resp-sharing-button resp-sharing-button--twitter resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.44 4.83c-.8.37-1.5.38-2.22.02.93-.56.98-.96 1.32-2.02-.88.52-1.86.9-2.9 1.1-.82-.88-2-1.43-3.3-1.43-2.5 0-4.55 2.04-4.55 4.54 0 .36.03.7.1 1.04-3.77-.2-7.12-2-9.36-4.75-.4.67-.6 1.45-.6 2.3 0 1.56.8 2.95 2 3.77-.74-.03-1.44-.23-2.05-.57v.06c0 2.2 1.56 4.03 3.64 4.44-.67.2-1.37.2-2.06.08.58 1.8 2.26 3.12 4.25 3.16C5.78 18.1 3.37 18.74 1 18.46c2 1.3 4.4 2.04 6.97 2.04 8.35 0 12.92-6.92 12.92-12.93 0-.2 0-.4-.02-.6.9-.63 1.96-1.22 2.56-2.14z"/></svg>
       </div>
@@ -58,24 +65,18 @@
   </a>
   
   <!-- Sharingbutton LinkedIn -->
-  <a class="resp-sharing-button__link" href="https://www.linkedin.com/shareArticle?mini=true&amp;url=http%3A%2F%2Fsharingbuttons.io&amp;title=Super%20fast%20and%20easy%20Social%20Media%20Sharing%20Buttons.%20No%20JavaScript.%20No%20tracking.&amp;summary=Super%20fast%20and%20easy%20Social%20Media%20Sharing%20Buttons.%20No%20JavaScript.%20No%20tracking.&amp;source=http%3A%2F%2Fsharingbuttons.io" target="_blank" rel="noopener" aria-label="">
+  <a class="resp-sharing-button__link" href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://chrome.google.com/webstore/detail/lets-move/lonkaecnmeegphliaamikdjdjngjilnd&amp;title=Take%20healthy%20breaks%20while%20working" target="_blank" rel="noopener" aria-label="">
     <div class="resp-sharing-button resp-sharing-button--linkedin resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.5 21.5h-5v-13h5v13zM4 6.5C2.5 6.5 1.5 5.3 1.5 4s1-2.4 2.5-2.4c1.6 0 2.5 1 2.6 2.5 0 1.4-1 2.5-2.6 2.5zm11.5 6c-1 0-2 1-2 2v7h-5v-13h5V10s1.6-1.5 4-1.5c3 0 5 2.2 5 6.3v6.7h-5v-7c0-1-1-2-2-2z"/></svg>
       </div>
     </div>
   </a>
 
-    
-  <!-- Sharingbutton E-Mail -->
-  <a class="resp-sharing-button__link" href="mailto:?subject=Super%20fast%20and%20easy%20Social%20Media%20Sharing%20Buttons.%20No%20JavaScript.%20No%20tracking.&amp;body=http%3A%2F%2Fsharingbuttons.io" target="_self" rel="noopener" aria-label="">
-    <div class="resp-sharing-button resp-sharing-button--email resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 4H2C.9 4 0 4.9 0 6v12c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM7.25 14.43l-3.5 2c-.08.05-.17.07-.25.07-.17 0-.34-.1-.43-.25-.14-.24-.06-.55.18-.68l3.5-2c.24-.14.55-.06.68.18.14.24.06.55-.18.68zm4.75.07c-.1 0-.2-.03-.27-.08l-8.5-5.5c-.23-.15-.3-.46-.15-.7.15-.22.46-.3.7-.14L12 13.4l8.23-5.32c.23-.15.54-.08.7.15.14.23.07.54-.16.7l-8.5 5.5c-.08.04-.17.07-.27.07zm8.93 1.75c-.1.16-.26.25-.43.25-.08 0-.17-.02-.25-.07l-3.5-2c-.24-.13-.32-.44-.18-.68s.44-.32.68-.18l3.5 2c.24.13.32.44.18.68z"/></svg>
-      </div>
-    </div>
-  </a>
-
-    </div>
+     </div>
         
-    <script src="options.js"></script>
     </body>
+    <script src="options.js">
+    </script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="alternate stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </html>
