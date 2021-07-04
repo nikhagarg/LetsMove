@@ -2,7 +2,7 @@
 
 var DEFAULT_UPDATE_INTERVAL = 1000;
 
-var TIME_INTERVAL_IN_MIN = 45;
+var TIME_INTERVAL_IN_MIN = 75;
 var TIME_LIMIT_IN_SEC_YELLOW = TIME_INTERVAL_IN_MIN*60;
 var TIME_LIMIT_IN_SEC_RED = 2*TIME_INTERVAL_IN_MIN*60;
 var CODE = "GREEN";
@@ -11,6 +11,7 @@ var NOTIFICATION_CLEAR_TIME_IN_MS = 10000;
 var NOTIF_SNOOZE_TIME_IN_MIN = 10; 
 var SNOOZE_TIME = -1;
 var BLOCKED_SITES = [];
+var WORKING_DAYS = {}; // WORKING_DAYS = {day: "Weekday", startTime: "09:00", endTime : "17:00"}
 
 onInit();
 
@@ -24,19 +25,31 @@ chrome.storage.local.get('blockedSites', function(sites) {
     }
 })
 
-chrome.storage.local.get('TIME_INTERVAL', function(tiveVal) {
-    if(tiveVal.TIME_INTERVAL) {
-        TIME_INTERVAL_IN_MIN = tiveVal.TIME_INTERVAL;
-        updateIntervals();
+// chrome.storage.local.get('TIME_INTERVAL', function(tiveVal) {
+//     if(tiveVal.TIME_INTERVAL) {
+//         TIME_INTERVAL_IN_MIN = tiveVal.TIME_INTERVAL;
+//         updateIntervals();
+//     }
+// })
+
+chrome.storage.local.get('WORKING_DAYS', function(days) {
+    if(days.WORKING_DAYS) {
+        WORKING_DAYS = days.WORKING_DAYS;
+    } 
+    else {
+        WORKING_DAYS = {day: "Weekday", startTime: "09:00", endTime : "17:00"};
+        chrome.storage.local.set({'WORKING_DAYS' : WORKING_DAYS});
     }
 })
 
-function updateIntervals() {
-    TIME_LIMIT_IN_SEC_YELLOW = TIME_INTERVAL_IN_MIN*60;
-    TIME_LIMIT_IN_SEC_RED = 2*TIME_INTERVAL_IN_MIN*60;
-}
+// function updateIntervals() {
+//     TIME_LIMIT_IN_SEC_YELLOW = TIME_INTERVAL_IN_MIN*60;
+//     TIME_LIMIT_IN_SEC_RED = 2*TIME_INTERVAL_IN_MIN*60;
+// }
 
 function runBG() {
+    if(!isTodayWorkingDay()) return;
+
     chrome.windows.getLastFocused({ populate: true }, function(currentWindow) {
         if(currentWindow.focused) {
             let activeTab = currentWindow.tabs.find(t => t.active === true);
@@ -89,10 +102,21 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     } else if(request.msg == "resetBlockedList") {
         BLOCKED_SITES = [];
         chrome.storage.local.set({'blockedSites' : BLOCKED_SITES});
-    } else if(request.msg == "intervalChanged") {
-        TIME_INTERVAL_IN_MIN = request.value;
-        chrome.storage.local.set({'TIME_INTERVAL' : TIME_INTERVAL_IN_MIN});
-        updateIntervals();
+    } 
+    // else if(request.msg == "intervalChanged") {
+    //     TIME_INTERVAL_IN_MIN = request.value;
+    //     chrome.storage.local.set({'TIME_INTERVAL' : TIME_INTERVAL_IN_MIN});
+    //     updateIntervals();
+    // } 
+    else if(request.msg == "workingDaysChanged") {
+        if(request.value.type == "DAY") {
+            WORKING_DAYS.day = request.value.newVal;
+        } else if(request.value.type == "START") {
+            WORKING_DAYS.startTime = request.value.newVal;
+        } else if(request.value.type == "END") {
+            WORKING_DAYS.endTime = request.value.newVal;
+        }
+        chrome.storage.local.set({'WORKING_DAYS' : WORKING_DAYS});
     }
 })
 
@@ -204,21 +228,74 @@ function changeBadgeColor(colorName) {
     chrome.browserAction.setBadgeBackgroundColor({color : colorName});
 }
 
+function isTodayWorkingDay() {
+    const currentDate = new Date();
+    const day = currentDate.getDay();
+    let activeDays = [];
+    switch (WORKING_DAYS.day) {
+        case "Weekday": 
+            activeDays = [1,2,3,4,5];
+            break;
+        case "Weekend": 
+            activeDays = [6,0];
+            break;
+        case "ALL": 
+            activeDays = [0,1,2,3,4,5,6];
+            break;
+        default: 
+            break;
+    }
+    
+    function padding(num) {
+        num = num.toString();
+        if(num.length < 2) num = '0' + num;
+        return num;
+    }
+    const currentTime = padding(currentDate.getHours()) + ':' + padding(currentDate.getMinutes());
+
+    if(activeDays.includes(day) && WORKING_DAYS.startTime <= currentTime && WORKING_DAYS.endTime >= currentTime) {
+        return true;
+    }
+    return false;
+}
+
 function notifyMe() {
-    chrome.notifications.create("", {
-        title : "Testing...",
-        message : " How about taking a break from work for a nice stretch?",
-        iconUrl : 'img/Active.png',
-        type : 'basic',
-        requireInteraction : true,
-        buttons : [{
-            title: 'snooze'
-        }]
-    }, function(notificationId) {
-        setTimeout(function() {
-            chrome.notifications.clear(notificationId, function(){});
-        }, NOTIFICATION_CLEAR_TIME_IN_MS);
-    });
+    createNotification();
+    audioNotification();
+
+    function createNotification() {
+        chrome.notifications.create("", {
+            title : "Testing...",
+            message : randomMessage(),
+            iconUrl : 'img/Active.png',
+            type : 'basic',
+            requireInteraction : true,
+            buttons : [{
+                title: 'snooze'
+            }]
+        }, function(notificationId) {
+            setTimeout(function() {
+                chrome.notifications.clear(notificationId, function(){});
+            }, NOTIFICATION_CLEAR_TIME_IN_MS);
+        });
+    }
+
+    function audioNotification() {
+        var myAudio = new Audio();
+        myAudio.src = chrome.extension.getURL("/sounds/tink.wav");
+        myAudio.play();
+    }
+
+    function randomMessage() {
+        const msg = [
+            "How about taking a break from work for a nice stretch?",
+            "Yoohoooooooooooooo",
+            "lalalalalallalalal",
+            "papapapapapapapapap"
+        ]
+        var i = Math.floor(Math.random() * msg.length);
+        return msg[i];
+    }
 }
 
 function notificationsSnoozed() {

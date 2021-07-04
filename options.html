@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Let's Move Options</title>
+        <title>Customize</title>
     </head>
 
     <body>
 
-    <div class="Text">
+    <!-- <div class="Text">
       <h3 class="Title"> Timer Duration</h3> 
       <hr>
-      <label>Choose a time interval :</label>
+      <label>Remind me to stretch every</label>
 
       <select id="mySelect">
         <option value="45">45mins</option>
@@ -18,7 +18,7 @@
         <option value="90">1h 30mins</option>
       </select>
 
-    </div>
+    </div> -->
 
     <div class="blockedSites">
         <h3 class="Title" id="header"> Add websites where you don't want to receive notifications</h3>
@@ -37,6 +37,24 @@
   <p class="blockedBox"> </p>
 </div>
 
+<div class="Text">
+  <h2 class="Title">Select Working Days</h2> 
+  <hr>
+  <label>Remind me to take breaks on </label>
+
+  <select id="WorkingDays">
+    <option value="Weekday">Weekdays</option>
+    <option value="Weekend">Weekends</option>
+    <option value="ALL">Weekday & Weekends</option>
+  </select>
+
+  <label>between </label>
+  <p>
+    <input type="time" id="startTime" value="09:00" step="600"> and
+    <input type="time" id="endTime" value="17:00" step="600">
+  </p>
+</div>  
+
 
 
 
@@ -49,12 +67,12 @@
 
      <div>
 <!-- Sharingbutton Facebook -->
-<a class="resp-sharing-button__link" href="https://facebook.com/sharer/sharer.php?u=http%3A%2F%2Fsharingbuttons.io" target="_blank" rel="noopener" aria-label="">
+<!-- <a class="resp-sharing-button__link" href="https://facebook.com/sharer/sharer.php?u=http%3A%2F%2Fsharingbuttons.io" target="_blank" rel="noopener" aria-label="">
     <div class="resp-sharing-button resp-sharing-button--facebook resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.77 7.46H14.5v-1.9c0-.9.6-1.1 1-1.1h3V.5h-4.33C10.24.5 9.5 3.44 9.5 5.32v2.15h-3v4h3v12h5v-12h3.85l.42-4z"/></svg>
       </div>
     </div>
-  </a>
+  </a> -->
   
   <!-- Sharingbutton Twitter -->
   <a class="resp-sharing-button__link" href="https://twitter.com/intent/tweet/?text=Take%20healthy%20breaks%20while%20working&amp;url=https://chrome.google.com/webstore/detail/lets-move/lonkaecnmeegphliaamikdjdjngjilnd" target="_blank" rel="noopener" aria-label="">
@@ -72,11 +90,22 @@
     </div>
   </a>
 
-     </div>
-        
+    </div>
+
     </body>
     <script src="options.js">
     </script>
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="alternate stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <div class="Text">
+      <h2 id="header"> Have a feedback?</h2>
+      <hr>
+      <p> Write to us 
+        <a href="https://twitter.com/messages/compose?recipient_id=4732481462" target="_blank"
+        class="twitter-dm-button" data-screen-name="@purvish_7">@purvish_7</a>
+        <a href="https://twitter.com/messages/compose?recipient_id=729606917853601792" target="_blank"
+        class="twitter-dm-button" data-screen-name="@_nikhagarg">@_nikhagarg</a> 
+      </p>
+    </div>
 </html>
