@@ -18,11 +18,11 @@ chrome.storage.local.get('blockedSites', function(sites) {
     }
 });
 
-// chrome.storage.local.get('TIME_INTERVAL', function(timeVal) {
-//     if(timeVal.TIME_INTERVAL) {
-//         document.getElementById("mySelect").value = timeVal.TIME_INTERVAL;
-//     }
-// });
+chrome.storage.local.get('TIME_INTERVAL', function(timeVal) {
+    if(timeVal.TIME_INTERVAL) {
+        document.getElementById("mySelect").value = timeVal.TIME_INTERVAL;
+    }
+});
 
 chrome.storage.local.get('WORKING_DAYS', function(days) {
     const WORKING_DAYS = days.WORKING_DAYS;
@@ -39,10 +39,10 @@ chrome.storage.local.get('WORKING_DAYS', function(days) {
     }
 });
 
-// document.getElementById("mySelect").onchange = function() {
-//     var newInterval = document.getElementById("mySelect").value;
-//     chrome.runtime.sendMessage({msg:'intervalChanged', value: newInterval})
-// }
+document.getElementById("mySelect").onchange = function() {
+    var newInterval = document.getElementById("mySelect").value;
+    chrome.runtime.sendMessage({msg:'intervalChanged', value: newInterval})
+}
 
 document.getElementById("blockSitesForm").onsubmit = function(event) {
     event.preventDefault();

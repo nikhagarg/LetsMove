@@ -1,22 +1,16 @@
 (function(){
 
-var DEFAULT_UPDATE_INTERVAL = 1000;
-
-var TIME_INTERVAL_IN_MIN = 75;
-var TIME_LIMIT_IN_SEC_YELLOW = TIME_INTERVAL_IN_MIN*60;
-var TIME_LIMIT_IN_SEC_RED = 2*TIME_INTERVAL_IN_MIN*60;
-var CODE = "GREEN";
+var TIME_INTERVAL_IN_MIN = 45;
 var RESET_TIME = 0;
 var NOTIFICATION_CLEAR_TIME_IN_MS = 10000;
 var NOTIF_SNOOZE_TIME_IN_MIN = 10; 
-var SNOOZE_TIME = -1;
 var BLOCKED_SITES = [];
 var WORKING_DAYS = {}; // WORKING_DAYS = {day: "Weekday", startTime: "09:00", endTime : "17:00"}
 
 onInit();
 
 function onInit() {
-    setInterval(runBG, DEFAULT_UPDATE_INTERVAL);
+    setInterval(runBG, 1000);
 }
 
 chrome.storage.local.get('blockedSites', function(sites) {
@@ -25,12 +19,11 @@ chrome.storage.local.get('blockedSites', function(sites) {
     }
 })
 
-// chrome.storage.local.get('TIME_INTERVAL', function(tiveVal) {
-//     if(tiveVal.TIME_INTERVAL) {
-//         TIME_INTERVAL_IN_MIN = tiveVal.TIME_INTERVAL;
-//         updateIntervals();
-//     }
-// })
+chrome.storage.local.get('TIME_INTERVAL', function(tiveVal) {
+    if(tiveVal.TIME_INTERVAL) {
+        TIME_INTERVAL_IN_MIN = tiveVal.TIME_INTERVAL;
+    }
+})
 
 chrome.storage.local.get('WORKING_DAYS', function(days) {
     if(days.WORKING_DAYS) {
@@ -41,11 +34,6 @@ chrome.storage.local.get('WORKING_DAYS', function(days) {
         chrome.storage.local.set({'WORKING_DAYS' : WORKING_DAYS});
     }
 })
-
-// function updateIntervals() {
-//     TIME_LIMIT_IN_SEC_YELLOW = TIME_INTERVAL_IN_MIN*60;
-//     TIME_LIMIT_IN_SEC_RED = 2*TIME_INTERVAL_IN_MIN*60;
-// }
 
 function runBG() {
     if(!isTodayWorkingDay()) return;
@@ -103,11 +91,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         BLOCKED_SITES = [];
         chrome.storage.local.set({'blockedSites' : BLOCKED_SITES});
     } 
-    // else if(request.msg == "intervalChanged") {
-    //     TIME_INTERVAL_IN_MIN = request.value;
-    //     chrome.storage.local.set({'TIME_INTERVAL' : TIME_INTERVAL_IN_MIN});
-    //     updateIntervals();
-    // } 
+    else if(request.msg == "intervalChanged") {
+        TIME_INTERVAL_IN_MIN = request.value;
+        chrome.storage.local.set({'TIME_INTERVAL' : TIME_INTERVAL_IN_MIN});
+    } 
     else if(request.msg == "workingDaysChanged") {
         if(request.value.type == "DAY") {
             WORKING_DAYS.day = request.value.newVal;
@@ -120,41 +107,38 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     }
 })
 
+getCurrentDate = function() {
+    return new Date();
+}
+
+getCurrentDay = function(currentDate) {
+    return currentDate.getDay();
+}
+
+getCurrentTime = function(currentDate) {
+    function padding(num) {
+        num = num.toString();
+        if(num.length < 2) num = '0' + num;
+        return num;
+    }
+    return padding(currentDate.getHours()) + ':' + padding(currentDate.getMinutes());
+}
+
 function resetTimer() {
     console.log(" timer is reset");
-    chrome.browserAction.setIcon({path: "img/Active.png"});
-    changeBadgeColor("green");
-    CODE = "GREEN";
     chrome.storage.local.set({'timer' : parseInt(RESET_TIME)});
-    chrome.browserAction.setBadgeText({text : ''});
 }
 
 function updateTimer() {
     console.log('timer is updated');
     chrome.storage.local.get('timer', function(timerVal) {
-        if(isLimitExceeded(timerVal.timer)) {
-            if(timerVal.timer < TIME_LIMIT_IN_SEC_YELLOW && CODE !== "GREEN") {
-                chrome.browserAction.setIcon({path: "img/Active.png"});
-                changeBadgeColor("green");
-                CODE = "GREEN";
-            } else if(timerVal.timer >= TIME_LIMIT_IN_SEC_YELLOW && timerVal.timer < TIME_LIMIT_IN_SEC_RED && CODE !== "YELLOW") {
-                chrome.browserAction.setIcon({path: "img/Inactive_1.png"});
-                changeBadgeColor("yellow");
-                CODE = "YELLOW";
-            } else if(timerVal.timer >= TIME_LIMIT_IN_SEC_RED && CODE !== "RED") {
-                chrome.browserAction.setIcon({path: "img/Inactive_2.png"});
-                changeBadgeColor("red");
-                CODE = "RED";
-                notifyMe();
-            } 
-            // window.open("popup.html", "extension_popup", "width=300,height=400,status=no,scrollbars=yes,resizable=no");
-            // chrome.tabs.create({url: "popup.html"});
+        const currentDate = getCurrentDate();
+        const currentTime = getCurrentTime(currentDate);
+        if(WORKING_DAYS.startTime == currentTime) {
+            resetTimer();
         }
-
-        // IF NOTIFICATIONS WERE SNOOZED BY THE USER
-        if(SNOOZE_TIME === timerVal.timer) {
-                SNOOZE_TIME = -1;
-                notifyMe();
+        if(isLimitExceeded(timerVal.timer)) {
+            notifyMe();
         }
 
         var newtime = 1;
@@ -162,7 +146,6 @@ function updateTimer() {
             newtime += parseInt(timerVal.timer);
         }
         chrome.storage.local.set({'timer' : newtime});
-        chrome.browserAction.setBadgeText({text : changeTimeFormat(newtime)});
     })
 }
 
@@ -204,33 +187,29 @@ function isBlackListed(domain) {
 }
 
 function isLimitExceeded(timeVal) {
-    if(timeVal !== undefined && timeVal >= parseInt(TIME_LIMIT_IN_SEC_YELLOW)) return true;
+    if(timeVal !== undefined && timeVal >= parseInt(TIME_INTERVAL_IN_MIN*60)) return true;
     return false;
 }
 
-function changeTimeFormat(time) {
-    var hr = parseInt(time/3600);
-    var min = parseInt((time - hr*3600)/60);
-    var sec = parseInt(time - hr*3600 - min*60); 
+// function changeTimeFormat(time) {
+//     var hr = parseInt(time/3600);
+//     var min = parseInt((time - hr*3600)/60);
+//     var sec = parseInt(time - hr*3600 - min*60); 
 
-    var display_time = '';
-    if(hr !== 0){
-        display_time = hr.toString() + 'h';
-    } else if(min !== 0){
-        display_time =  min.toString() + 'm';
-    } else{
-        display_time = sec.toString() + 's';
-    }
-    return display_time;
-}
-
-function changeBadgeColor(colorName) {
-    chrome.browserAction.setBadgeBackgroundColor({color : colorName});
-}
+//     var display_time = '';
+//     if(hr !== 0){
+//         display_time = hr.toString() + 'h';
+//     } else if(min !== 0){
+//         display_time =  min.toString() + 'm';
+//     } else{
+//         display_time = sec.toString() + 's';
+//     }
+//     return display_time;
+// }
 
 function isTodayWorkingDay() {
-    const currentDate = new Date();
-    const day = currentDate.getDay();
+    const currentDate = getCurrentDate();
+    const day = getCurrentDay(currentDate);
     let activeDays = [];
     switch (WORKING_DAYS.day) {
         case "Weekday": 
@@ -246,12 +225,7 @@ function isTodayWorkingDay() {
             break;
     }
     
-    function padding(num) {
-        num = num.toString();
-        if(num.length < 2) num = '0' + num;
-        return num;
-    }
-    const currentTime = padding(currentDate.getHours()) + ':' + padding(currentDate.getMinutes());
+    const currentTime = getCurrentTime(currentDate);
 
     if(activeDays.includes(day) && WORKING_DAYS.startTime <= currentTime && WORKING_DAYS.endTime >= currentTime) {
         return true;
@@ -274,6 +248,7 @@ function notifyMe() {
                 title: 'snooze'
             }]
         }, function(notificationId) {
+            resetTimer();
             setTimeout(function() {
                 chrome.notifications.clear(notificationId, function(){});
             }, NOTIFICATION_CLEAR_TIME_IN_MS);
@@ -299,20 +274,23 @@ function notifyMe() {
 }
 
 function notificationsSnoozed() {
-    var snooze = NOTIF_SNOOZE_TIME_IN_MIN*60;
+    var snooze = (TIME_INTERVAL_IN_MIN - NOTIF_SNOOZE_TIME_IN_MIN)*60;
     chrome.storage.local.get('timer', function(timerVal) {
-        SNOOZE_TIME = timerVal.timer + snooze;
+        chrome.storage.local.set({'timer' : parseInt(snooze)});
     });
 }
 
 chrome.notifications.onClicked.addListener(function(notificationId, byUser) {
     window.open("popup.html", "extension_popup", "width=300,height=400,status=no,scrollbars=yes,resizable=yes");
     chrome.notifications.clear(notificationId, function(){});
+    resetTimer();
 });
 
 chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
     if(buttonIndex === 0) {
         notificationsSnoozed();
+    } else {
+        resetTimer();
     }
     chrome.notifications.clear(notificationId, function(){});
 })
